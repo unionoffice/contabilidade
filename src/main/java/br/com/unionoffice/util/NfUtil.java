@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JProgressBar;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -40,6 +42,7 @@ public class NfUtil {
 				progress.setValue(barra);
 				continue;
 			}
+
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setNamespaceAware(true);
 			Document document = factory.newDocumentBuilder().parse(arquivo);
@@ -59,6 +62,7 @@ public class NfUtil {
 					: document.getDocumentElement().getElementsByTagName("chCTe").item(0);
 
 			BigDecimal bigValor = new BigDecimal(valor.getTextContent());
+
 			// ****
 			NfEntrada nota = new NfEntrada();
 			if (cte)
@@ -69,35 +73,52 @@ public class NfUtil {
 			nota.setValor(bigValor);
 			nota.setChave(chave.getTextContent());
 			nota.ordem = i;
+
+			// *** Arquivos que já estão numerados
+			Pattern regex = Pattern.compile("^\\d{2,3} [-]");
+			String nomeArquivo = arquivo.getName().substring(0, arquivo.getName().indexOf('-') + 1);
+			Matcher matcher = regex.matcher(nomeArquivo);
+			if (matcher.matches()) {
+				int xml = Integer.parseInt(nomeArquivo.substring(0, nomeArquivo.indexOf(' ')));
+				nota.xml = xml;
+			}
+
 			lista.add(nota);
-			Thread.sleep(500);
+			// Thread.sleep(500);
 			i++;
 			barra++;
 			progress.setValue(barra);
+
 		}
-		Collections.sort(lista);
 		i = 0;
 		List<File> danfes = Arrays.asList(pastaDanfe.listFiles());
-
+		Collections.sort(lista);
+		/*
 		for (NfEntrada nota : lista) {
-			File arquivo = arquivos[nota.ordem];
-			System.out.println(arquivo);
-			arquivo.renameTo(new File(pasta + "/" + String.format("%02d", i + 1) + " - "
-					+ nota.getFornecedor().replace("/", "").replace(" ", "_") + " - " + nota.getNumero() + ".xml"));
-
-			try {
-				File danfe = (File) danfes.stream().filter(f -> f.getName().startsWith(nota.getChave())).toArray()[0];
-				danfe.renameTo(new File(danfe.getParent() + "/" + String.format("%02d", i + 1) + " - "
-						+ nota.getFornecedor().replace("/", "").replace(" ", "_") + " - " + nota.getNumero() + " - R$"
-						+ nota.getValor().doubleValue() + ".pdf"));
-			} catch (Exception e) {
-
+			System.out.println(nota.xml + " - " + nota.getFornecedor() + " - " + nota.getNumero());
+		}
+		 */	
+		for (NfEntrada nota : lista) {
+			if (nota.xml == 1000) {
+				File arquivo = arquivos[nota.ordem];
+				arquivo.renameTo(new File(pasta + "/" + String.format("%02d", i + 1) + " - "
+						+ nota.getFornecedor().replace("/", "").replace(" ", "_") + " - " + nota.getNumero() + ".xml"));
+				try {
+					File danfe = (File) danfes.stream().filter(f -> f.getName().startsWith(nota.getChave()))
+							.toArray()[0];
+					danfe.renameTo(new File(danfe.getParent() + "/" + String.format("%02d", i + 1) + " - "
+							+ nota.getFornecedor().replace("/", "").replace(" ", "_") + " - " + nota.getNumero()
+							+ " - R$" + nota.getValor().doubleValue() + ".pdf"));
+				} catch (Exception e) {					
+				}
+				nota.xml = i + 1;
 			}
 			i++;
-			nota.xml = i;
 			barra++;
 			progress.setValue(barra);
 		}
+
+
 		GeraExcel.expExcel(lista, pasta);
 		barra++;
 		progress.setValue(barra);

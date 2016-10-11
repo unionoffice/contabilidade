@@ -13,7 +13,7 @@ public class NfEntrada implements Comparable<NfEntrada> {
 	private BigDecimal valor;
 	private String chave;
 	public int ordem;
-	public int xml;
+	public int xml = 1000;
 
 	public NfEntrada() {
 		tipo = TipoNfe.NFE;
@@ -69,7 +69,14 @@ public class NfEntrada implements Comparable<NfEntrada> {
 	}
 
 	@Override
-	public int compareTo(NfEntrada o) {
+	public int compareTo(NfEntrada o) {		
+		if (this.xml != 0) {			
+			if (this.xml < o.xml) {
+				return -1;
+			} else if (this.xml > o.xml) {
+				return 1;
+			}
+		}
 		if (this.getData().before(o.getData())) {
 			return -1;
 		}

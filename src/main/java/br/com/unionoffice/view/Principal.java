@@ -17,7 +17,6 @@ import javax.swing.event.ChangeListener;
 
 import br.com.unionoffice.model.NfEntradaTableModel;
 import br.com.unionoffice.modelo.NfEntrada;
-import br.com.unionoffice.util.GeraExcel;
 import br.com.unionoffice.util.NfUtil;
 
 public class Principal extends JFrame {
@@ -51,9 +50,8 @@ public class Principal extends JFrame {
 		btProcPasta.setBounds(posX += tfPasta.getWidth() + 10, posY, 90, 30);
 
 		fcPasta = new JFileChooser();
-		// fcPasta.setCurrentDirectory(new File("P:\\NFE\\Protoloco QUALI -
-		// CONTABILIDADE 2016"));
-		fcPasta.setCurrentDirectory(new File("C:\\Users\\Roberto\\Desktop"));
+		fcPasta.setCurrentDirectory(new File("P:\\NFE\\"));
+		//fcPasta.setCurrentDirectory(new File("C:\\Users\\Roberto\\Desktop"));
 		fcPasta.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		fcPasta.setDialogTitle("Escolha a pasta dos XMLs");
 		fcPasta.setApproveButtonText("Selecionar");
